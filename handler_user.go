@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
-	"uuid"
 
+	"github.com/google/uuid"
 	"github.com/push-basic/Gator/internal/database"
 )
 
@@ -27,35 +26,27 @@ func handlerLogin(s *state, cmd command) error {
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("usage: %s <name>", cmd.Name)
+		return fmt.Errorf("usage: register <username>")
 	}
 
-	ctx := context.Background()
+	username := cmd.Args[0]
 
-	_, err := s.db.GetUser(ctx, cmd.Args[0])
-	if err == nil {
-		fmt.Println("user already exists")
-		os.Exit(1)
-	}
-
-	u, err := s.db.CreateUser(ctx, database.CreateUserParams{
+	u, err := s.db.CreateUser(context.Background(), database.CreateUserParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		Name:      cmd.Args[0],
+		Name:      username,
 	})
-	if err != nil {
-		fmt.Printf("Failed to create user %v\n", err)
-		os.Exit(1)
+	if err == nil {
+		return fmt.Errorf("user %s already exists", username)
 	}
 
 	err = s.cfg.SetUser(u.Name)
 	if err != nil {
-		return fmt.Errorf("Failed to set current user: %w", err)
+		return fmt.Errorf("failed to set current user: %w", err)
 	}
 
 	fmt.Printf("User created %v\n", u)
 
 	return nil
-
 }

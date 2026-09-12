@@ -1,40 +1,40 @@
 package main
 
 import (
-	"Gator/internal/config"
-	"fmt"
 	"log"
 	"os"
+
+	"github.com/push-basic/Gator/internal/config"
 )
+
+type state struct {
+	cfg *config.Config
+}
 
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		log.Fatal(err)
-		return
+		log.Fatalf("error reading config: %v", err)
 	}
 
-	s := &state{
-		Config: &cfg,
+	programState := &state{
+		cfg: &cfg,
 	}
 
-	cmds := newCommands()
+	cmds := commands{
+		registeredCommands: make(map[string]func(*state, command) error),
+	}
 	cmds.register("login", handlerLogin)
 
 	if len(os.Args) < 2 {
-		fmt.Println("not enough arguments")
-		os.Exit(1)
-
+		log.Fatal("Usage: cli <command> [args...]")
 	}
 
-	cmd := command{
-		Name: os.Args[1],
-		Args: os.Args[2:],
-	}
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
 
-	err = cmds.run(s, cmd)
+	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }

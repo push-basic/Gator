@@ -11,8 +11,8 @@ const (
 )
 
 type Config struct {
-	Url  string `json:"url"`
-	Name string `json:"name"`
+	URL  string `json:"db_url"`
+	Name string `json:"current_user_name"`
 }
 
 func (c *Config) SetUser(param string) error {

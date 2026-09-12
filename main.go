@@ -2,6 +2,7 @@ package main
 
 import (
 	"Gator/internal/config"
+	"fmt"
 	"log"
 )
 
@@ -20,4 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println("URL:", cfg.URL)
+	fmt.Println("Name:", cfg.Name)
 }

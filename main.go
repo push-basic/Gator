@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -24,21 +23,19 @@ func main() {
 
 	db, err := sql.Open("postgres", cfg.DBURL)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalf("error connecting to db: %v", err)
 	}
-
+	defer db.Close()
 	dbQueries := database.New(db)
 
 	programState := &state{
-		cfg: &cfg,
 		db:  dbQueries,
+		cfg: &cfg,
 	}
 
 	cmds := commands{
 		registeredCommands: make(map[string]func(*state, command) error),
 	}
-
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
 

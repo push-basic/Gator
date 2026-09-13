@@ -11,7 +11,7 @@ import (
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("usage: %v <name>", cmd.Name)
+		return fmt.Errorf("usage: %s <name>", cmd.Name)
 	}
 
 	name := cmd.Args[0]
@@ -59,6 +59,25 @@ func handlerLogin(s *state, cmd command) error {
 func printUser(user database.User) {
 	fmt.Printf(" * ID:      %v\n", user.ID)
 	fmt.Printf(" * Name:    %v\n", user.Name)
+}
+
+func handlerGetUsers(s *state, cmd command) error {
+	u, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, u := range u {
+		fmt.Printf("* %s", u.Name)
+
+		if u.Name == s.cfg.CurrentUserName {
+			fmt.Print(" (current)")
+		}
+
+		fmt.Print("\n")
+	}
+
+	return nil
 }
 
 func handlerReset(s *state, cmd command) error {

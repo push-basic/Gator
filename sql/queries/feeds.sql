@@ -4,4 +4,13 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: GetFeeds :many
-SELECT * FROM feeds;
+SELECT
+    feeds.id,
+    feeds.name,
+    feeds.url,
+    feeds.user_id,
+    users.name AS user_name
+FROM 
+    feeds
+INNER JOIN users
+    ON feeds.user_id = users.id;

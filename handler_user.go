@@ -11,7 +11,7 @@ import (
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("usage: %s <name>", cmd.Name)
+		return fmt.Errorf("usage: %v <name>", cmd.Name)
 	}
 
 	name := cmd.Args[0]
@@ -56,32 +56,27 @@ func handlerLogin(s *state, cmd command) error {
 	return nil
 }
 
-func handlerGetUsers(s *state, cmd command) error {
-	u, err := s.db.GetUsers(context.Background())
+func handlerListUsers(s *state, cmd command) error {
+	users, err := s.db.GetUsers(context.Background())
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't list users: %w", err)
 	}
-
-	for _, u := range u {
-		fmt.Printf("* %s", u.Name)
-
-		if u.Name == s.cfg.CurrentUserName {
-			fmt.Print(" (current)")
+	for _, user := range users {
+		if user.Name == s.cfg.CurrentUserName {
+			fmt.Printf("* %v (current)\n", user.Name)
+			continue
 		}
-
-		fmt.Print("\n")
+		fmt.Printf("* %v\n", user.Name)
 	}
-
 	return nil
 }
 
 func handlerReset(s *state, cmd command) error {
-	err := s.db.ResetUsers(context.Background())
+	err := s.db.DeleteUsers(context.Background())
 	if err != nil {
-		return fmt.Errorf("could not remove users: %w", err)
+		return fmt.Errorf("couldn't delete users: %w", err)
 	}
-
-	fmt.Println("Users removed")
+	fmt.Println("Database reset successfully!")
 	return nil
 }
 
